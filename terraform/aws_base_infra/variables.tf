@@ -30,6 +30,7 @@ variable "create" {
     ecr               = bool
     ecs               = bool
     vpc               = bool
+    lambda_functions  = bool
   })
 }
 
@@ -65,4 +66,17 @@ variable "s3_conf" {
 
 variable "vpc_conf" {
   description = "Configuration for VPC"
+}
+
+variable "lambda_conf" {
+  description = "Configuration for Lambda functions"
+  type = object({
+    runtime                = string
+    timeout                = number
+    memory_size            = number
+    training_source_path   = string
+    testing_source_path    = string
+    s3_bucket              = string
+    environment_variables  = map(string)
+  })
 }

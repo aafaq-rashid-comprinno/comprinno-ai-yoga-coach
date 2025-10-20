@@ -4,4 +4,5 @@ create = {
   ecr               = true
   ecs               = true
   vpc               = true
+  lambda_functions  = true
 }

@@ -73,3 +73,19 @@ vpc_conf = {
   database_subnet_cidrs     = ["10.0.100.0/24", "10.0.200.0/24"]
   enable_nat_gateway        = true
 }
+
+lambda_conf = {
+  runtime                = "python3.11"
+  timeout                = 300
+  memory_size            = 1024
+  training_source_path   = "../lambda_functions/training"
+  testing_source_path    = "../lambda_functions/testing"
+  s3_bucket              = "yoga-eval-bucket"
+  environment_variables = {
+    VISIBILITY_THRESHOLD = "0.3"
+    FRAME_SAMPLE_RATE   = "5"
+    MAX_PROCESSING_TIME = "300"
+    BEDROCK_MODEL       = "anthropic.claude-3-sonnet-20240229-v1:0"
+    MAX_RETRIES         = "3"
+  }
+}

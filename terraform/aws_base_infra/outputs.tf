@@ -77,3 +77,24 @@ output "public_subnet_ids" {
   description = "IDs of the public subnets"
   value       = var.create.vpc ? module.vpc[0].public_subnet_ids : null
 }
+
+# Lambda Outputs
+output "training_lambda_function_name" {
+  description = "Name of the training Lambda function"
+  value       = var.create.lambda_functions ? module.training_lambda[0].function_name : null
+}
+
+output "training_lambda_function_arn" {
+  description = "ARN of the training Lambda function"
+  value       = var.create.lambda_functions ? module.training_lambda[0].function_arn : null
+}
+
+output "testing_lambda_function_name" {
+  description = "Name of the testing Lambda function"
+  value       = var.create.lambda_functions ? module.testing_lambda[0].function_name : null
+}
+
+output "testing_lambda_function_arn" {
+  description = "ARN of the testing Lambda function"
+  value       = var.create.lambda_functions ? module.testing_lambda[0].function_arn : null
+}

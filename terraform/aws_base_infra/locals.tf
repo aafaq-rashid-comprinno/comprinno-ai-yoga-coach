@@ -8,6 +8,11 @@ locals {
   ecs_cluster_name       = "promogen-${var.environment}-cluster"
   ecs_task_family        = "promogen-${var.environment}-task"
   ecs_service_name       = "promogen-${var.environment}-service"
+  vpc_name               = "${local.name_prefix}-vpc"
+  
+  # Lambda function names
+  training_lambda_name   = "${local.name_prefix}-training-lambda"
+  testing_lambda_name    = "${local.name_prefix}-testing-lambda"
   
   # S3 bucket names (must be globally unique)
   s3_storage_bucket_name = "${var.s3_conf.bucket_name}-${random_string.bucket_suffix.result}"
