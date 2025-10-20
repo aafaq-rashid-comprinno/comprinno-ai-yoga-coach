@@ -1,0 +1,30 @@
+FROM public.ecr.aws/lambda/python:3.12
+
+# Set matplotlib config to use /tmp
+ENV MPLCONFIGDIR=/tmp
+
+# Install minimal system dependencies for MediaPipe
+# This layer is cached unless system deps change
+RUN dnf install -y mesa-libGL && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
+# Copy requirements file FIRST (for better caching)
+# This layer is cached unless requirements change
+COPY requirements-training.txt ${LAMBDA_TASK_ROOT}/requirements.txt
+
+# Install Python dependencies
+# This layer is cached unless requirements.txt changes
+# OPTIMIZATION: This is the slowest step but only runs when dependencies change
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy shared components
+# This layer rebuilds when code changes (fast)
+COPY shared/ ${LAMBDA_TASK_ROOT}/shared/
+
+# Copy training Lambda function
+# This layer rebuilds when code changes (fast)
+COPY training/training_lambda_function.py ${LAMBDA_TASK_ROOT}/lambda_function.py
+
+# Set the Lambda handler
+CMD [ "lambda_function.lambda_handler" ]

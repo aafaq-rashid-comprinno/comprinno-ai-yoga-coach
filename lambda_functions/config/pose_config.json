@@ -1,0 +1,197 @@
+{
+  "poses": {
+    "downward-dog": {
+      "display_name": "Downward Dog",
+      "description": "An inverted V-shaped pose that stretches and strengthens the entire body",
+      "angles": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_hip",
+        "right_hip",
+        "left_knee",
+        "right_knee",
+        "spine_alignment"
+      ],
+      "tolerances": {
+        "left_shoulder": 15,
+        "right_shoulder": 15,
+        "left_hip": 20,
+        "right_hip": 20,
+        "left_knee": 10,
+        "right_knee": 10,
+        "spine_alignment": 8
+      },
+      "key_points": [
+        "Hands shoulder-width apart",
+        "Feet hip-width apart",
+        "Hips lifted high",
+        "Spine straight",
+        "Heels reaching toward floor"
+      ]
+    },
+    "warrior-1": {
+      "display_name": "Warrior I",
+      "description": "A standing pose that builds strength and stability in the legs and core",
+      "angles": [
+        "left_hip",
+        "right_hip",
+        "left_knee",
+        "right_knee",
+        "left_shoulder",
+        "right_shoulder",
+        "spine_alignment"
+      ],
+      "tolerances": {
+        "left_hip": 25,
+        "right_hip": 25,
+        "left_knee": 15,
+        "right_knee": 15,
+        "left_shoulder": 20,
+        "right_shoulder": 20,
+        "spine_alignment": 10
+      },
+      "key_points": [
+        "Front knee bent at 90 degrees",
+        "Back leg straight",
+        "Hips square to front",
+        "Arms raised overhead",
+        "Chest lifted"
+      ]
+    },
+    "warrior-2": {
+      "display_name": "Warrior II",
+      "description": "A standing pose that opens the hips and strengthens the legs",
+      "angles": [
+        "left_hip",
+        "right_hip",
+        "left_knee",
+        "right_knee",
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow"
+      ],
+      "tolerances": {
+        "left_hip": 25,
+        "right_hip": 25,
+        "left_knee": 15,
+        "right_knee": 15,
+        "left_shoulder": 20,
+        "right_shoulder": 20,
+        "left_elbow": 10,
+        "right_elbow": 10
+      },
+      "key_points": [
+        "Front knee bent at 90 degrees",
+        "Back leg straight",
+        "Hips open to side",
+        "Arms extended parallel to floor",
+        "Gaze over front hand"
+      ]
+    },
+    "tree-pose": {
+      "display_name": "Tree Pose",
+      "description": "A balancing pose that improves focus and strengthens the legs",
+      "angles": [
+        "left_hip",
+        "right_hip",
+        "left_knee",
+        "right_knee",
+        "left_shoulder",
+        "right_shoulder",
+        "spine_alignment"
+      ],
+      "tolerances": {
+        "left_hip": 20,
+        "right_hip": 20,
+        "left_knee": 25,
+        "right_knee": 25,
+        "left_shoulder": 15,
+        "right_shoulder": 15,
+        "spine_alignment": 12
+      },
+      "key_points": [
+        "Standing leg straight and strong",
+        "Lifted foot on inner thigh or calf",
+        "Hips level",
+        "Hands in prayer or overhead",
+        "Steady gaze for balance"
+      ]
+    },
+    "triangle-pose": {
+      "display_name": "Triangle Pose",
+      "description": "A standing pose that stretches the sides of the body and strengthens the legs",
+      "angles": [
+        "left_hip",
+        "right_hip",
+        "left_knee",
+        "right_knee",
+        "left_shoulder",
+        "right_shoulder",
+        "spine_alignment"
+      ],
+      "tolerances": {
+        "left_hip": 20,
+        "right_hip": 20,
+        "left_knee": 10,
+        "right_knee": 10,
+        "left_shoulder": 25,
+        "right_shoulder": 25,
+        "spine_alignment": 15
+      },
+      "key_points": [
+        "Both legs straight",
+        "Front foot pointing forward",
+        "Back foot at 90 degrees",
+        "Torso extended over front leg",
+        "Arms in one line"
+      ]
+    }
+  },
+  "global_settings": {
+    "visibility_threshold": 0.5,
+    "min_frames_for_training": 10,
+    "min_frames_for_testing": 5,
+    "frame_extraction_fps": 2,
+    "max_frames": 60,
+    "pass_threshold": 70.0
+  },
+  "angle_definitions": {
+    "left_shoulder": {
+      "description": "Angle at left elbow (shoulder-elbow-wrist)",
+      "landmarks": ["left_shoulder", "left_elbow", "left_wrist"]
+    },
+    "right_shoulder": {
+      "description": "Angle at right elbow (shoulder-elbow-wrist)",
+      "landmarks": ["right_shoulder", "right_elbow", "right_wrist"]
+    },
+    "left_hip": {
+      "description": "Angle at left hip (shoulder-hip-knee)",
+      "landmarks": ["left_shoulder", "left_hip", "left_knee"]
+    },
+    "right_hip": {
+      "description": "Angle at right hip (shoulder-hip-knee)",
+      "landmarks": ["right_shoulder", "right_hip", "right_knee"]
+    },
+    "left_knee": {
+      "description": "Angle at left knee (hip-knee-ankle)",
+      "landmarks": ["left_hip", "left_knee", "left_ankle"]
+    },
+    "right_knee": {
+      "description": "Angle at right knee (hip-knee-ankle)",
+      "landmarks": ["right_hip", "right_knee", "right_ankle"]
+    },
+    "left_elbow": {
+      "description": "Angle at left elbow (shoulder-elbow-wrist)",
+      "landmarks": ["left_shoulder", "left_elbow", "left_wrist"]
+    },
+    "right_elbow": {
+      "description": "Angle at right elbow (shoulder-elbow-wrist)",
+      "landmarks": ["right_shoulder", "right_elbow", "right_wrist"]
+    },
+    "spine_alignment": {
+      "description": "Angle of spine alignment (hip-shoulder-nose)",
+      "landmarks": ["mid_hip", "mid_shoulder", "nose"]
+    }
+  }
+}

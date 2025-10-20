@@ -1,0 +1,13 @@
+# Amazon Bedrock AgentCore
+bedrock-agentcore
+bedrock-agentcore-starter-toolkit
+
+# Agent Framework
+strands-agents
+
+# AWS SDK
+boto3
+botocore
+
+# Utilities
+python-dotenv

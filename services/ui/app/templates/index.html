@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Yoga Coach</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f1f5f9; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        .header { padding: 24px 0; border-bottom: 1px solid #334155; }
+        .header-content { display: flex; align-items: center; justify-content: space-between; }
+        .logo { display: flex; align-items: center; gap: 16px; }
+        .logo-icon { width: 40px; height: 40px; border-radius: 8px; background: linear-gradient(135deg, #22d3ee, #3b82f6); display: flex; align-items: center; justify-content: center; color: #0f172a; font-weight: bold; font-size: 20px; }
+        .nav { display: flex; align-items: center; gap: 16px; }
+        .main { padding: 24px 0; }
+        .card { background: #1e293b; border-radius: 16px; padding: 24px; margin-bottom: 32px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .input, .select, .textarea { width: 100%; padding: 12px; border-radius: 8px; background: #0f172a; color: #e2e8f0; border: 1px solid #475569; }
+        .input:focus, .select:focus, .textarea:focus { outline: none; border-color: #22d3ee; }
+        .form-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+        .btn { padding: 12px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: #22d3ee; color: #0f172a; }
+        .btn-primary:hover { background: #67e8f9; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary { background: #475569; color: #f1f5f9; }
+        .btn-secondary:hover { background: #64748b; }
+        .btn-small { padding: 8px 12px; font-size: 14px; }
+        .progress-section { background: #0f172a; border-radius: 8px; padding: 16px; margin-top: 24px; }
+        .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .progress-bar-bg { width: 100%; height: 8px; background: #475569; border-radius: 4px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #22d3ee, #3b82f6); transition: width 0.5s; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .pose-card { background: #0f172a; border-radius: 8px; overflow: hidden; transition: background 0.2s; }
+        .pose-card:hover { background: #1e293b; }
+        .pose-header { height: 128px; background: linear-gradient(135deg, #22d3ee, #3b82f6); display: flex; align-items: end; padding: 16px; }
+        .pose-body { padding: 16px; }
+        .pose-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .status { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .status-ready { background: #064e3b; color: #6ee7b7; }
+        .status-pending { background: #92400e; color: #fbbf24; }
+        .modal { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding: 16px; }
+        .modal-content { width: 100%; max-width: 800px; max-height: 90vh; overflow-y: auto; border-radius: 16px; background: #0f172a; padding: 24px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .close-btn { background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
+        .close-btn:hover { color: #e2e8f0; }
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .text-sm { font-size: 14px; }
+        .text-red { color: #ef4444; }
+        .text-gray { color: #94a3b8; }
+        .mb-2 { margin-bottom: 8px; }
+        .mb-4 { margin-bottom: 16px; }
+        video { width: 100%; border-radius: 8px; }
+        .file-input { color: #e2e8f0; }
+        .file-input::file-selector-button { margin-right: 16px; padding: 8px 16px; border-radius: 4px; border: none; background: #22d3ee; color: #0f172a; font-weight: 500; cursor: pointer; }
+        .result-section { background: #1e293b; border-radius: 8px; padding: 16px; margin-top: 16px; }
+        .score-display { font-size: 48px; font-weight: bold; color: #22d3ee; text-align: center; margin: 16px 0; }
+        .angle-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        .angle-table th, .angle-table td { padding: 8px; text-align: left; border-bottom: 1px solid #475569; }
+        .angle-table th { color: #94a3b8; font-weight: 500; }
+        .score-good { color: #6ee7b7; }
+        .score-ok { color: #fbbf24; }
+        .score-poor { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">🧘</div>
+                    <h1>AI Yoga Coach</h1>
+                </div>
+                <div class="nav">
+                    <div class="text-sm text-gray" id="poseCount">5 poses supported</div>
+                    <div class="status status-ready" style="margin-left: 16px;">🤖 AgentCore Enabled</div>
+                    <a href="/logout" class="btn btn-secondary btn-small" style="margin-left: 16px;">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Evaluate Video Section -->
+            <div class="card">
+                <h2 class="mb-4">Evaluate Your Yoga Pose</h2>
+                
+                <form id="evaluationForm">
+                    <div class="form-grid">
+                        <select id="pose_name" class="select" required>
+                            <option value="">Select a pose...</option>
+                            {% for key, name in poses.items() %}
+                            <option value="{{ key }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                        
+                        <select id="video_type" class="select">
+                            <option value="testing">Testing (Evaluate)</option>
+                            <option value="training">Training (Create Standard)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="text-sm text-gray mb-2" style="display: block;">Upload Video (MP4, MOV, AVI - max 100MB)</label>
+                        <input type="file" id="video" accept="video/*" required class="input file-input">
+                    </div>
+                    
+                    <div class="form-row">
+                        <button type="submit" id="evaluateBtn" class="btn btn-primary">
+                            Evaluate Pose
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Progress Section -->
+                <div id="progressSection" class="progress-section hidden">
+                    <div class="progress-header">
+                        <span id="progressText">Processing your video...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <!-- Results Section -->
+                <div id="resultsSection" class="result-section hidden">
+                    <h3 class="mb-4">Evaluation Results</h3>
+                    <div id="resultsContent"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Evaluation Modal -->
+    <div id="evaluationModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Evaluation Details</h2>
+                <button onclick="closeModal()" class="close-btn">&times;</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let isProcessing = false;
+
+        function resetForm() {
+            isProcessing = false;
+            const btn = document.getElementById('evaluateBtn');
+            const progressSection = document.getElementById('progressSection');
+            const form = document.getElementById('evaluationForm');
+            
+            // Reset button
+            btn.textContent = 'Evaluate Pose';
+            btn.disabled = false;
+            
+            // Hide progress
+            progressSection.classList.add('hidden');
+            
+            // Reset form fields
+            form.reset();
+            
+            // Clear file input display
+            const fileInput = document.getElementById('video');
+            fileInput.value = '';
+        }
+
+        document.getElementById('evaluationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (isProcessing) {
+                alert('Processing already in progress. Please wait...');
+                return;
+            }
+            
+            const pose_name = document.getElementById('pose_name').value;
+            const video_type = document.getElementById('video_type').value;
+            const video = document.getElementById('video').files[0];
+            
+            if (!pose_name || !video) return;
+            
+            await evaluateVideo(pose_name, video_type, video);
+        });
+
+        async function evaluateVideo(pose_name, video_type, video) {
+            isProcessing = true;
+            const btn = document.getElementById('evaluateBtn');
+            const progressSection = document.getElementById('progressSection');
+            const resultsSection = document.getElementById('resultsSection');
+            
+            btn.textContent = 'Processing...';
+            btn.disabled = true;
+            progressSection.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+            
+            // Simulate progress
+            simulateProgress();
+            
+            try {
+                // Create FormData for file upload
+                const formData = new FormData();
+                formData.append('pose_name', pose_name);
+                formData.append('video_type', video_type);
+                formData.append('video', video);
+
+                const response = await fetch('/evaluate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    updateProgress(100, 'Processing complete!');
+                    displayResults(result);
+                    
+                    // Reset form after 2 seconds to allow user to see results
+                    setTimeout(() => {
+                        resetForm();
+                    }, 2000);
+                } else {
+                    updateProgress(0, `Error: ${result.error}`);
+                    setTimeout(resetForm, 3000);
+                }
+            } catch (error) {
+                updateProgress(0, `Error: ${error.message}`);
+                setTimeout(resetForm, 3000);
+            }
+        }
+
+        function simulateProgress() {
+            let progress = 0;
+            const steps = [
+                { text: 'Uploading video...', target: 20 },
+                { text: 'Extracting frames...', target: 40 },
+                { text: 'Analyzing pose...', target: 70 },
+                { text: 'Generating feedback...', target: 90 }
+            ];
+            
+            let stepIndex = 0;
+            const interval = setInterval(() => {
+                if (!isProcessing) {
+                    clearInterval(interval);
+                    return;
+                }
+                
+                progress += Math.random() * 3;
+                
+                if (stepIndex < steps.length && progress >= steps[stepIndex].target) {
+                    updateProgress(steps[stepIndex].target, steps[stepIndex].text);
+                    stepIndex++;
+                } else if (progress < 90) {
+                    updateProgress(progress);
+                }
+                
+                if (progress >= 90) {
+                    clearInterval(interval);
+                }
+            }, 200);
+        }
+
+        function updateProgress(percent, text = null) {
+            document.getElementById('progressBar').style.width = `${percent}%`;
+            document.getElementById('progressPercent').textContent = `${Math.round(percent)}%`;
+            if (text) {
+                document.getElementById('progressText').textContent = text;
+            }
+        }
+
+        function displayResults(result) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            let html = '';
+            
+            if (result.status === 'success') {
+                const message = result.message || '';
+                
+                // Check if it's a training or testing result
+                if (result.golden_standard_key) {
+                    // Training result - User-friendly display
+                    const userMessage = result.user_message || message;
+                    const poseName = result.pose_display_name || result.pose_name || 'Pose';
+                    const summary = result.summary || {};
+                    
+                    html = `
+                        <div class="text-center">
+                            <div style="font-size: 64px; margin: 16px 0;">✅</div>
+                            <h3 style="color: #6ee7b7; margin-bottom: 8px;">Success!</h3>
+                            <p style="font-size: 20px; font-weight: 600; color: #e2e8f0; margin-bottom: 8px;">${poseName}</p>
+                            <p style="font-size: 16px; color: #94a3b8; margin-bottom: 32px;">${userMessage}</p>
+                            
+                            <div style="background: #0f172a; border-radius: 8px; padding: 20px; text-align: left;">
+                                <h4 style="color: #22d3ee; margin-bottom: 16px; font-size: 16px;">📊 Summary</h4>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                                    <div>
+                                        <div class="text-sm text-gray" style="margin-bottom: 4px;">Video Length</div>
+                                        <div style="font-size: 20px; color: #e2e8f0;">${summary.video_duration || 'N/A'}</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray" style="margin-bottom: 4px;">Frames Analyzed</div>
+                                        <div style="font-size: 20px; color: #e2e8f0;">${summary.frames_analyzed || 'N/A'}</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray" style="margin-bottom: 4px;">Pose Detection</div>
+                                        <div style="font-size: 20px; color: #6ee7b7;">${summary.detection_rate || 'N/A'}</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray" style="margin-bottom: 4px;">Validation</div>
+                                        <div style="font-size: 20px; color: #6ee7b7;">${summary.validation_confidence || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #064e3b; border-left: 4px solid #6ee7b7; border-radius: 8px; padding: 16px; margin-top: 16px; text-align: left;">
+                                <p style="color: #6ee7b7; font-size: 14px;">
+                                    <strong>✓ Ready to use!</strong> You can now upload testing videos to evaluate against this golden standard.
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                } else if (result.overall_score !== undefined) {
+                    // Testing result - Enhanced display with user_feedback
+                    const score = result.overall_score;
+                    const grade = result.grade || 'N/A';
+                    const passFail = result.pass_fail || 'N/A';
+                    const scoreClass = score >= 80 ? 'score-good' : score >= 60 ? 'score-ok' : 'score-poor';
+                    const passClass = passFail === 'PASS' ? 'score-good' : 'score-poor';
+                    const userFeedback = result.user_feedback || {};
+                    
+                    html = `
+                        <div class="text-center">
+                            <div style="font-size: 48px; margin: 16px 0;">${passFail === 'PASS' ? '✅' : '⚠️'}</div>
+                            <h3 style="color: ${passFail === 'PASS' ? '#6ee7b7' : '#fbbf24'}; margin-bottom: 8px;">
+                                ${result.pose_display_name || result.pose_name || 'Pose'} Evaluation
+                            </h3>
+                            <div style="display: flex; justify-content: center; gap: 24px; margin: 24px 0;">
+                                <div>
+                                    <div class="text-sm text-gray">Score</div>
+                                    <div class="score-display ${scoreClass}" style="font-size: 48px;">${score.toFixed(1)}</div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray">Grade</div>
+                                    <div class="score-display ${scoreClass}" style="font-size: 48px;">${grade}</div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray">Result</div>
+                                    <div class="${passClass}" style="font-size: 24px; margin-top: 12px;">${passFail}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${result.summary_feedback ? `
+                        <div style="background: #0f172a; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: center;">
+                            <p style="color: #94a3b8; font-size: 16px;">${result.summary_feedback}</p>
+                        </div>
+                        ` : ''}
+                        
+                        ${userFeedback.what_you_did_right && userFeedback.what_you_did_right.length > 0 ? `
+                        <div style="background: #064e3b; border-left: 4px solid #6ee7b7; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: left;">
+                            <h4 style="color: #6ee7b7; margin-bottom: 12px; font-size: 16px;">✅ What You Did Right</h4>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                ${userFeedback.what_you_did_right.map(item => `<li style="padding: 6px 0; color: #d1fae5; font-size: 14px;">${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                        
+                        ${userFeedback.what_can_improve && userFeedback.what_can_improve.length > 0 ? `
+                        <div style="background: #7c2d12; border-left: 4px solid #fbbf24; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: left;">
+                            <h4 style="color: #fbbf24; margin-bottom: 12px; font-size: 16px;">💡 What Can Be Improved</h4>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                ${userFeedback.what_can_improve.map(item => `<li style="padding: 6px 0; color: #fed7aa; font-size: 14px;">${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                    `;
+                    
+                    // Angle evaluations with detailed feedback
+                    if (result.angle_evaluations) {
+                        html += `
+                            <div style="background: #0f172a; border-radius: 8px; padding: 16px; margin-top: 16px;">
+                                <h4 style="color: #22d3ee; margin-bottom: 16px;">📊 Detailed Angle Analysis</h4>
+                                <table class="angle-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Body Part</th>
+                                            <th>Score</th>
+                                            <th>Deviation</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+                        
+                        for (const [angleName, angleData] of Object.entries(result.angle_evaluations)) {
+                            const angleScore = angleData.score || 0;
+                            const deviation = angleData.deviation || 0;
+                            const status = angleData.status || 'UNKNOWN';
+                            const scoreClass = angleScore >= 80 ? 'score-good' : angleScore >= 60 ? 'score-ok' : 'score-poor';
+                            const statusIcon = status === 'EXCELLENT' ? '⭐' : status === 'GOOD' ? '✓' : status === 'FAIR' ? '⚠' : '✗';
+                            
+                            html += `
+                                <tr>
+                                    <td style="text-transform: capitalize;">${angleName.replace(/_/g, ' ')}</td>
+                                    <td class="${scoreClass}">${angleScore.toFixed(1)}</td>
+                                    <td class="${scoreClass}">${deviation > 0 ? '+' : ''}${deviation.toFixed(1)}°</td>
+                                    <td class="${scoreClass}">${statusIcon} ${status}</td>
+                                </tr>
+                            `;
+                            
+                            // Add feedback row if available
+                            if (angleData.feedback) {
+                                html += `
+                                    <tr>
+                                        <td colspan="4" style="padding: 8px 12px; background: #1e293b; font-size: 13px; color: #94a3b8;">
+                                            ${angleData.feedback}
+                                        </td>
+                                    </tr>
+                                `;
+                            }
+                        }
+                        
+                        html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+                    
+                    // Recommendations section
+                    if (result.recommendations && result.recommendations.length > 0) {
+                        html += `
+                            <div style="background: #0f172a; border-radius: 8px; padding: 16px; margin-top: 16px; text-align: left;">
+                                <h4 style="color: #fbbf24; margin-bottom: 12px;">💡 Recommendations</h4>
+                                <ul style="list-style: none; padding: 0; margin: 0;">
+                        `;
+                        
+                        result.recommendations.forEach(rec => {
+                            html += `<li style="padding: 8px 0; color: #94a3b8; font-size: 14px;">• ${rec}</li>`;
+                        });
+                        
+                        html += `
+                                </ul>
+                            </div>
+                        `;
+                    }
+                    
+                    // Processing stats
+                    if (result.frames_with_pose || result.total_frames) {
+                        html += `
+                            <div style="background: #0f172a; border-radius: 8px; padding: 16px; margin-top: 16px; text-align: left;">
+                                <h4 style="color: #22d3ee; margin-bottom: 12px;">📈 Processing Stats</h4>
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-size: 14px;">
+                                    <div>
+                                        <div class="text-sm text-gray">Total Frames</div>
+                                        <div style="color: #e2e8f0; font-size: 18px;">${result.total_frames || 'N/A'}</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray">Frames Analyzed</div>
+                                        <div style="color: #e2e8f0; font-size: 18px;">${result.frames_with_pose || 'N/A'}</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray">Detection Rate</div>
+                                        <div style="color: #6ee7b7; font-size: 18px;">${result.pose_detection_rate ? (result.pose_detection_rate * 100).toFixed(1) + '%' : 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    // Generic success
+                    html = `
+                        <div class="text-center">
+                            <div style="font-size: 64px; margin: 16px 0;">✅</div>
+                            <p class="text-gray">${message}</p>
+                        </div>
+                    `;
+                }
+            } else {
+                // Error - User-friendly display
+                const userMessage = result.user_message || result.message || 'Processing failed';
+                const poseName = result.pose_display_name || result.pose_name || 'the pose';
+                const summary = result.validation_summary || '';
+                const recommendation = result.recommendation || '';
+                
+                html = `
+                    <div class="text-center">
+                        <div style="font-size: 64px; margin: 16px 0;">❌</div>
+                        <h3 style="color: #ef4444; margin-bottom: 8px;">Validation Failed</h3>
+                        <p style="font-size: 18px; color: #94a3b8; margin-bottom: 24px;">${poseName}</p>
+                        
+                        <div style="background: #0f172a; border-radius: 8px; padding: 20px; margin-bottom: 16px; text-align: left;">
+                            <div style="display: flex; align-items: start; gap: 12px;">
+                                <div style="font-size: 24px;">ℹ️</div>
+                                <div>
+                                    <p style="font-size: 16px; color: #e2e8f0; margin-bottom: 8px;">${userMessage}</p>
+                                    ${summary ? `<p class="text-sm text-gray">${summary}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                `;
+                
+                if (recommendation) {
+                    // Format recommendation with line breaks
+                    const formattedRec = recommendation.replace(/\n/g, '<br>');
+                    html += `
+                        <div style="background: #0f172a; border-radius: 8px; padding: 20px; text-align: left;">
+                            <div style="display: flex; align-items: start; gap: 12px;">
+                                <div style="font-size: 24px;">💡</div>
+                                <div>
+                                    <h4 style="color: #fbbf24; margin-bottom: 8px;">How to Fix This</h4>
+                                    <p class="text-sm text-gray" style="line-height: 1.6;">${formattedRec}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += `</div>`;
+            }
+            
+            resultsContent.innerHTML = html;
+            resultsSection.classList.remove('hidden');
+        }
+
+        function resetForm() {
+            isProcessing = false;
+            document.getElementById('evaluateBtn').textContent = 'Evaluate Pose';
+            document.getElementById('evaluateBtn').disabled = false;
+            document.getElementById('progressSection').classList.add('hidden');
+            document.getElementById('evaluationForm').reset();
+        }
+
+        function closeModal() {
+            document.getElementById('evaluationModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+{
+  "aws": {
+    "region": "us-east-1",
+    "s3": {
+      "bucket_name": "yoga-evaluation-bucket",
+      "training_prefix": "{pose_name}/training",
+      "testing_prefix": "{pose_name}/testing",
+      "frames_prefix": "{pose_name}/{stage}/frames",
+      "evaluations_prefix": "{pose_name}/testing/evaluations",
+      "errors_prefix": "{pose_name}/errors"
+    },
+    "bedrock": {
+      "model_id": "anthropic.claude-3-sonnet-20240229-v1:0",
+      "max_tokens": 500,
+      "temperature": 0.7
+    },
+    "lambda": {
+      "timeout": 900,
+      "memory_size": 3008,
+      "runtime": "python3.13"
+    }
+  },
+  "processing": {
+    "video": {
+      "supported_formats": ["mp4", "avi", "mov"],
+      "max_duration_seconds": 30,
+      "min_duration_seconds": 5,
+      "frame_extraction_fps": 2,
+      "max_frames": 60
+    },
+    "pose_detection": {
+      "model_complexity": 1,
+      "min_detection_confidence": 0.5,
+      "min_tracking_confidence": 0.5,
+      "visibility_threshold": 0.5,
+      "static_image_mode": true,
+      "smooth_landmarks": false,
+      "enable_segmentation": false
+    },
+    "validation": {
+      "sample_frames_for_bedrock": 3,
+      "min_confidence_threshold": 0.5
+    }
+  },
+  "evaluation": {
+    "scoring": {
+      "pass_threshold": 70.0,
+      "excellent_threshold": 85.0,
+      "good_threshold": 70.0,
+      "needs_improvement_threshold": 50.0
+    },
+    "grading": {
+      "A": 90,
+      "B": 80,
+      "C": 70,
+      "D": 60,
+      "F": 0
+    },
+    "min_frames_for_training": 10,
+    "min_frames_for_testing": 5
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "json",
+    "include_timestamps": true,
+    "log_processing_duration": true
+  },
+  "feature_flags": {
+    "enable_bedrock_validation": true,
+    "enable_frame_upload": true,
+    "enable_detailed_logging": true,
+    "enable_error_reports": true
+  }
+}

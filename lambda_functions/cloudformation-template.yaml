@@ -1,0 +1,177 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Yoga Evaluation System - Complete Infrastructure Setup'
+
+Parameters:
+  BucketName:
+    Type: String
+    Default: yoga-evaluation-bucket
+    Description: Name for the S3 bucket (must be globally unique)
+  
+  TrainingLambdaName:
+    Type: String
+    Default: yoga-training-lambda
+    Description: Name for the Training Lambda function
+  
+  TestingLambdaName:
+    Type: String
+    Default: yoga-testing-lambda
+    Description: Name for the Testing Lambda function
+
+Resources:
+  # S3 Bucket for videos and results
+  YogaEvaluationBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldFrames
+            Status: Enabled
+            ExpirationInDays: 30
+            Prefix: '*/training/frames/'
+          - Id: DeleteOldErrors
+            Status: Enabled
+            ExpirationInDays: 7
+            Prefix: '*/errors/'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Project
+          Value: YogaEvaluationSystem
+
+  # IAM Role for Lambda functions
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: YogaEvaluationLambdaRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: YogaEvaluationS3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt YogaEvaluationBucket.Arn
+                  - !Sub '${YogaEvaluationBucket.Arn}/*'
+        - PolicyName: YogaEvaluationBedrockAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource: !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0'
+
+  # Training Lambda Function
+  TrainingLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref TrainingLambdaName
+      Runtime: python3.11
+      Handler: training_lambda_function.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 900
+      MemorySize: 3008
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref BucketName
+      Code:
+        ZipFile: |
+          # Placeholder - deploy actual code using deploy.sh script
+          def lambda_handler(event, context):
+              return {'statusCode': 200, 'body': 'Deploy actual code'}
+      Tags:
+        - Key: Project
+          Value: YogaEvaluationSystem
+
+  # Testing Lambda Function
+  TestingLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref TestingLambdaName
+      Runtime: python3.11
+      Handler: testing_lambda_function.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 900
+      MemorySize: 3008
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref BucketName
+      Code:
+        ZipFile: |
+          # Placeholder - deploy actual code using deploy.sh script
+          def lambda_handler(event, context):
+              return {'statusCode': 200, 'body': 'Deploy actual code'}
+      Tags:
+        - Key: Project
+          Value: YogaEvaluationSystem
+
+  # Lambda permission for S3 to invoke Training Lambda
+  TrainingLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref TrainingLambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !GetAtt YogaEvaluationBucket.Arn
+
+  # Lambda permission for S3 to invoke Testing Lambda
+  TestingLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref TestingLambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !GetAtt YogaEvaluationBucket.Arn
+
+Outputs:
+  BucketName:
+    Description: S3 Bucket for yoga videos and results
+    Value: !Ref YogaEvaluationBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-BucketName'
+
+  TrainingLambdaArn:
+    Description: ARN of Training Lambda function
+    Value: !GetAtt TrainingLambdaFunction.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-TrainingLambdaArn'
+
+  TestingLambdaArn:
+    Description: ARN of Testing Lambda function
+    Value: !GetAtt TestingLambdaFunction.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-TestingLambdaArn'
+
+  LambdaRoleArn:
+    Description: ARN of Lambda execution role
+    Value: !GetAtt LambdaExecutionRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-LambdaRoleArn'
+
+  DeploymentInstructions:
+    Description: Next steps for deployment
+    Value: !Sub |
+      1. Deploy this CloudFormation stack
+      2. Run: export LAMBDA_ROLE_ARN="${LambdaExecutionRole.Arn}"
+      3. Run: export S3_BUCKET_NAME="${BucketName}"
+      4. Run: ./deploy.sh to upload Lambda code
+      5. Configure S3 event notifications manually or via AWS Console
