@@ -89,11 +89,11 @@ AWS_REGION=us-east-1
 BEDROCK_MODEL=us.anthropic.claude-3-5-sonnet-20241022-v2:0
 
 # S3 Configuration
-S3_BUCKET=yoga-eval-bucket-1760638546
+S3_BUCKET=yoga-eval-bucket
 
 # Lambda Functions
-TRAINING_LAMBDA_ARN=arn:aws:lambda:us-east-1:830251426724:function:yoga-training-lambda
-TESTING_LAMBDA_ARN=arn:aws:lambda:us-east-1:830251426724:function:yoga-testing-lambda
+TRAINING_LAMBDA_ARN=arn:aws:lambda:us-east-1:<account-id>:function:yoga-training-lambda
+TESTING_LAMBDA_ARN=arn:aws:lambda:us-east-1:<account-id>:function:yoga-testing-lambda
 
 # Logging
 LOG_LEVEL=INFO
@@ -110,7 +110,7 @@ COGNITO_USER_POOL_ID=<your-user-pool-id>
 COGNITO_CLIENT_ID=<your-client-id>
 
 # AgentCore Integration
-AGENTCORE_ARN=arn:aws:bedrock-agentcore:us-east-1:830251426724:runtime/yoga_coach-tiHwXqEf7V
+AGENTCORE_ARN=arn:aws:bedrock-agentcore:us-east-1:<account-id>:runtime/yoga_coach-tiHwXqEf7V
 
 # Server Configuration
 SERVER_PORT=5000
@@ -210,8 +210,8 @@ agentcore launch \
   --agent yoga_coach \
   --env AWS_REGION=us-east-1 \
   --env BEDROCK_MODEL=us.anthropic.claude-3-5-sonnet-20241022-v2:0 \
-  --env TRAINING_LAMBDA_ARN=arn:aws:lambda:us-east-1:830251426724:function:yoga-training-lambda \
-  --env TESTING_LAMBDA_ARN=arn:aws:lambda:us-east-1:830251426724:function:yoga-testing-lambda \
+  --env TRAINING_LAMBDA_ARN=arn:aws:lambda:us-east-1:<account-id>:function:yoga-training-lambda \
+  --env TESTING_LAMBDA_ARN=arn:aws:lambda:us-east-1:<account-id>:function:yoga-testing-lambda \
   --env S3_BUCKET=yoga-eval-bucket-1760638546
 ```
 
